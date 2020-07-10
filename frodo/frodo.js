@@ -155,9 +155,32 @@ frodo().then((data) => {
         : (document.getElementById('playerready').className = 'disable');
 
     document.getElementById('mpeg4').innerText = isMPEG4Supported;
+    isMPEG4Supported
+        ? (document.getElementById('mpeg4').className = 'enable')
+        : (document.getElementById('mpeg4').className = 'disable');
+
     document.getElementById('h264').innerText = isH264Supported;
+    isH264Supported
+        ? (document.getElementById('h264').className = 'enable')
+        : (document.getElementById('h264').className = 'disable');
+
     document.getElementById('h265').innerText = isH265Supported;
+    isH265Supported
+        ? (document.getElementById('h265').className = 'enable')
+        : (document.getElementById('h265').className = 'disable');
+
     document.getElementById('ogg').innerText = isOGGSupported;
+    isOGGSupported
+        ? (document.getElementById('ogg').className = 'enable')
+        : (document.getElementById('ogg').className = 'disable');
+
     document.getElementById('webm').innerText = isWEBMSupported;
+    isWEBMSupported
+        ? (document.getElementById('webm').className = 'enable')
+        : (document.getElementById('webm').className = 'disable');
+
     document.getElementById('hls').innerText = isHLSSupported;
+    isH265Supported
+        ? (document.getElementById('hls').className = 'enable')
+        : (document.getElementById('hls').className = 'disable');
 });
