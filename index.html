@@ -3,9 +3,31 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>Test</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;800&display=swap"
+            rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="./style.css" />
     </head>
     <body>
-        <script src='./frodo/frodo.js'></script>
+        <div class="eme">
+            <h1 class="eme-article">EME Compatibility</h1>
+            <p>Fairplay: <span id="fairplay"></span></p>
+            <p>PlayerReady: <span id="playerready"></span></p>
+            <p>ClearKey: <span id="clearkey"></span></p>
+            <p>Widevine: <span id="widevine"></span></p>
+        </div>
+
+        <div class="codecs">
+            <h1 class="codecs-article">CODECS Compatibility</h1>
+            <p>mpeg4: <span id="mpeg4"></span></p>
+            <p>h264: <span id="h264"></span></p>
+            <p>h265: <span id="h265"></span></p>
+            <p>ogg: <span id="ogg"></span></p>
+            <p>webm: <span id="webm"></span></p>
+            <p>hls: <span id="hls"></span></p>
+        </div>
+        <script src="./frodo/frodo.js"></script>
     </body>
 </html>

@@ -1,0 +1,41 @@
+body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0px;
+    background-color: rgb(33, 35, 41);
+}
+
+* {
+    outline: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+li,
+ul {
+    margin: 20px;
+    color: #c9c9c9;
+    font-family: "Montserrat", sans-serif;
+}
+
+h1 {
+	font-weight: 100;
+}
+
+p {
+	font-weight: 800;
+}
+
+.enable {
+	color: rgb(25, 240, 229);
+}
+
+.disable {
+	color: rgb(184, 44, 44);
+}

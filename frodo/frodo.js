@@ -1,4 +1,4 @@
-export async function frodo() {
+async function frodo() {
     const testVideoElement = document.createElement('video');
 
     let isMPEG4Supported;
@@ -117,3 +117,47 @@ export async function frodo() {
         },
     };
 }
+
+frodo().then((data) => {
+    const {
+        isMPEG4Supported,
+        isH264Supported,
+        isH265Supported,
+        isHLSSupported,
+        isOGGSupported,
+        isWEBMSupported,
+        EMESupport: {
+            isWidevineSupported,
+            isClearKeySupported,
+            isFairPlaySupported,
+            isPlayreadySupported,
+        },
+    } = data;
+
+    document.getElementById('widevine').innerText = isWidevineSupported;
+    isWEBMSupported
+        ? (document.getElementById('widevine').className = 'enable')
+        : (document.getElementById('widevine').className = 'disable');
+
+    document.getElementById('fairplay').innerText = isFairPlaySupported;
+    isFairPlaySupported
+        ? (document.getElementById('fairplay').className = 'enable')
+        : (document.getElementById('fairplay').className = 'disable');
+
+    document.getElementById('clearkey').innerText = isClearKeySupported;
+    isClearKeySupported
+        ? (document.getElementById('clearkey').className = 'enable')
+        : (document.getElementById('clearkey').className = 'disable');
+
+    document.getElementById('playerready').innerText = isPlayreadySupported;
+    isPlayreadySupported
+        ? (document.getElementById('playerready').className = 'enable')
+        : (document.getElementById('playerready').className = 'disable');
+
+    document.getElementById('mpeg4').innerText = isMPEG4Supported;
+    document.getElementById('h264').innerText = isH264Supported;
+    document.getElementById('h265').innerText = isH265Supported;
+    document.getElementById('ogg').innerText = isOGGSupported;
+    document.getElementById('webm').innerText = isWEBMSupported;
+    document.getElementById('hls').innerText = isHLSSupported;
+});
