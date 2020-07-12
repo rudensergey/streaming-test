@@ -7,6 +7,7 @@ async function frodo() {
     let isOGGSupported;
     let isWEBMSupported;
     let isHLSSupported;
+    let isDashSupported;
 
     if (testVideoElement.canPlayType) {
         isMPEG4Supported =
@@ -31,8 +32,12 @@ async function frodo() {
             false;
 
         isHLSSupported =
-            testVideoElement.canPlayType('application/vnd.apple.mpegurl') ||
+            testVideoElement.canPlayType('application/vnd.apple.mpegURL') ||
+            testVideoElement.canPlayType('audio/mpegurl') ||
             false;
+
+        isDashSupported =
+            testVideoElement.canPlayType('application/dash+xml') || false;
     }
 
     const config = [
@@ -103,6 +108,7 @@ async function frodo() {
         isOGGSupported,
         isWEBMSupported,
         isHLSSupported,
+        isDashSupported,
         EMESupport: {
             isWidevineSupported,
             isPlayreadySupported,
@@ -126,6 +132,7 @@ frodo().then((data) => {
         isHLSSupported,
         isOGGSupported,
         isWEBMSupported,
+        isDashSupported,
         EMESupport: {
             isWidevineSupported,
             isClearKeySupported,
@@ -183,4 +190,9 @@ frodo().then((data) => {
     isH265Supported
         ? (document.getElementById('hls').className = 'enable')
         : (document.getElementById('hls').className = 'disable');
+
+    document.getElementById('dash').innerText = isDashSupported;
+    isDashSupported
+        ? (document.getElementById('dash').className = 'enable')
+        : (document.getElementById('dash').className = 'disable');
 });
