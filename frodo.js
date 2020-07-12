@@ -1,18 +1,34 @@
 async function frodo() {
     const testVideoElement = document.createElement('video');
-
-    let isMPEG4Supported;
-    let isH264Supported;
-    let isH265Supported;
     let isOGGSupported;
     let isWEBMSupported;
+    let isMPEG4Supported;
+    let isVP8Supported;
+    let isVP9Supported;
+    let isH264Supported;
+    let isH265Supported;
     let isHLSSupported;
-    let isDashSupported;
+    let isMediaSourceSupported;
+
+    // video codecs support
 
     if (testVideoElement.canPlayType) {
+        isOGGSupported =
+            testVideoElement.canPlayType('video/ogg;codecs="theora"') || false;
+
+        isWEBMSupported =
+            testVideoElement.canPlayType('video/webm; codecs="vp8, vorbis"') ||
+            false;
+
         isMPEG4Supported =
             testVideoElement.canPlayType('video/mp4; codecs="mp4v.20.8"') ||
             false;
+
+        isVP8Supported =
+            testVideoElement.canPlayType('video/webm; codecs="vp8"') || false;
+
+        isVP9Supported =
+            testVideoElement.canPlayType('video/webm; codecs="vp9"') || false;
 
         isH264Supported =
             testVideoElement.canPlayType('video/mp4; codecs="avc1.42E01E"') ||
@@ -22,23 +38,25 @@ async function frodo() {
             false;
 
         isH265Supported =
-            testVideoElement.canPlayType('video/mp4;codecs="hvc1"') || false;
-
-        isOGGSupported =
-            testVideoElement.canPlayType('video/ogg;codecs="theora"') || false;
-
-        isWEBMSupported =
-            testVideoElement.canPlayType('video/webm; codecs="vp8, vorbis"') ||
+            testVideoElement.canPlayType('video/mp4; codecs="hvc1.1.L0.0"') ||
+            testVideoElement.canPlayType('video/mp4; codecs="hev1.1.L0.0"') ||
             false;
 
         isHLSSupported =
             testVideoElement.canPlayType('application/vnd.apple.mpegURL') ||
-            testVideoElement.canPlayType('audio/mpegurl') ||
             false;
 
-        isDashSupported =
-            testVideoElement.canPlayType('application/dash+xml') || false;
+        isMediaSourceSupported =
+            'MediaSource' in window
+                ? true
+                : 'WebKitMediaSource' in window ||
+                  'mozMediaSource' in window ||
+                  'msMediaSource' in window
+                ? true
+                : false;
     }
+
+    /* streaming */
 
     const config = [
         {
@@ -102,13 +120,15 @@ async function frodo() {
         fpsSupported || fps1Supported || fps2Supported || fps3Supported;
 
     return {
-        isMPEG4Supported,
-        isH264Supported,
         isH265Supported,
         isOGGSupported,
+        isMPEG4Supported,
+        isH264Supported,
         isWEBMSupported,
+        isVP8Supported,
+        isVP9Supported,
         isHLSSupported,
-        isDashSupported,
+        isMediaSourceSupported,
         EMESupport: {
             isWidevineSupported,
             isPlayreadySupported,
@@ -132,7 +152,9 @@ frodo().then((data) => {
         isHLSSupported,
         isOGGSupported,
         isWEBMSupported,
-        isDashSupported,
+        isVP8Supported,
+        isVP9Supported,
+        isMediaSourceSupported,
         EMESupport: {
             isWidevineSupported,
             isClearKeySupported,
@@ -140,6 +162,8 @@ frodo().then((data) => {
             isPlayreadySupported,
         },
     } = data;
+
+    // drm
 
     document.getElementById('widevine').innerText = isWidevineSupported;
     isWEBMSupported
@@ -160,6 +184,20 @@ frodo().then((data) => {
     isPlayreadySupported
         ? (document.getElementById('playerready').className = 'enable')
         : (document.getElementById('playerready').className = 'disable');
+
+    // streaming
+
+    document.getElementById('hls').innerText = isHLSSupported;
+    isHLSSupported
+        ? (document.getElementById('hls').className = 'enable')
+        : (document.getElementById('hls').className = 'disable');
+
+    document.getElementById('media').innerText = isMediaSourceSupported;
+    isMediaSourceSupported
+        ? (document.getElementById('media').className = 'enable')
+        : (document.getElementById('media').className = 'disable');
+
+    // codecs
 
     document.getElementById('mpeg4').innerText = isMPEG4Supported;
     isMPEG4Supported
@@ -186,13 +224,13 @@ frodo().then((data) => {
         ? (document.getElementById('webm').className = 'enable')
         : (document.getElementById('webm').className = 'disable');
 
-    document.getElementById('hls').innerText = isHLSSupported;
-    isH265Supported
-        ? (document.getElementById('hls').className = 'enable')
-        : (document.getElementById('hls').className = 'disable');
+    document.getElementById('vp8').innerText = isVP8Supported;
+    isVP8Supported
+        ? (document.getElementById('vp8').className = 'enable')
+        : (document.getElementById('vp8').className = 'disable');
 
-    document.getElementById('dash').innerText = isDashSupported;
-    isDashSupported
-        ? (document.getElementById('dash').className = 'enable')
-        : (document.getElementById('dash').className = 'disable');
+    document.getElementById('vp9').innerText = isVP9Supported;
+    isVP9Supported
+        ? (document.getElementById('vp9').className = 'enable')
+        : (document.getElementById('vp9').className = 'disable');
 });
