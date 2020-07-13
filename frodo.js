@@ -1,5 +1,6 @@
 async function frodo() {
     const testVideoElement = document.createElement('video');
+
     let isOGGSupported;
     let isWEBMSupported;
     let isMPEG4Supported;
@@ -8,6 +9,12 @@ async function frodo() {
     let isH264Supported;
     let isH265Supported;
     let isHLSSupported;
+    const isMediaSourceSupported =
+        'MediaSource' in window ||
+        'WebKitMediaSource' in window ||
+        'mozMediaSource' in window ||
+        'msMediaSource' in window;
+    const isDashSupported = isMediaSourceSupported;
 
     // video codecs & streaming
 
@@ -64,57 +71,50 @@ async function frodo() {
         },
     ];
 
-    const isWidevineSupported = await navigator
-        .requestMediaKeySystemAccess('com.widevine.alpha', config)
-        .then(
-            () => true,
-            () => false
-        );
-    const isPlayreadySupported = await navigator
-        .requestMediaKeySystemAccess('com.microsoft.playready', config)
-        .then(
-            () => true,
-            () => false
-        );
-    const isClearKeySupported = await navigator
-        .requestMediaKeySystemAccess('org.w3.clearkey', config)
-        .then(
-            () => true,
-            () => false
-        );
-    const fpsSupported = await navigator
-        .requestMediaKeySystemAccess('com.apple.fps', config)
-        .then(
-            () => true,
-            () => false
-        );
-    const fps1Supported = await navigator
-        .requestMediaKeySystemAccess('com.apple.fps.1_0', config)
-        .then(
-            () => true,
-            () => false
-        );
-    const fps2Supported = await navigator
-        .requestMediaKeySystemAccess('com.apple.fps.2_0', config)
-        .then(
-            () => true,
-            () => false
-        );
-    const fps3Supported = await navigator
-        .requestMediaKeySystemAccess('com.apple.fps.3_0', config)
-        .then(
-            () => true,
-            () => false
-        );
+    const DRMSystems = {
+        isWidevineSupported: 'com.widevine.alpha',
+        isPlayreadySupported: 'com.microsoft.playready',
+        isClearKeySupported: 'org.w3.clearkey',
+        isFairPlaySupported: 'com.apple.fps',
+        fps1Supported: 'com.apple.fps.1_0',
+        fps2Supported: 'com.apple.fps.2_0',
+        fps3Supported: 'com.apple.fps.3_0',
+    };
 
-    const isFairPlaySupported =
-        fpsSupported || fps1Supported || fps2Supported || fps3Supported;
-    const isMediaSourceSupported =
-        'MediaSource' in window ||
-        'WebKitMediaSource' in window ||
-        'mozMediaSource' in window ||
-        'msMediaSource' in window;
-    const isDashSupported = isMediaSourceSupported;
+    function checkDRMSupport(systems, mediaConfig) {
+        const promises = [];
+        const supportList = {};
+
+        async function checking(key, value) {
+            await navigator
+                .requestMediaKeySystemAccess(value, mediaConfig)
+                .then(
+                    () => {
+                        supportList[key] = true;
+                    },
+                    () => {
+                        supportList[key] = false;
+                    }
+                );
+        }
+
+        for (const key in systems) {
+            if ({}.hasOwnProperty.call(systems, key)) {
+                promises.push(checking(key, systems[key]));
+            }
+        }
+
+        return Promise.all(promises).then(() => {
+            supportList.isFairPlaySupported =
+                supportList.fpsSupported ||
+                supportList.fps1Supported ||
+                supportList.fps2Supported ||
+                supportList.fps3Supported;
+            return supportList;
+        });
+    }
+
+    const EMESupport = await checkDRMSupport(DRMSystems, config);
 
     return {
         codecs: {
@@ -127,18 +127,7 @@ async function frodo() {
             isVP9Supported,
         },
         streaming: { isHLSSupported, isDashSupported, isMediaSourceSupported },
-        EMESupport: {
-            isWidevineSupported,
-            isPlayreadySupported,
-            isClearKeySupported,
-            isFairPlaySupported,
-            fairPlayVersions: {
-                fpsSupported,
-                fps1Supported,
-                fps2Supported,
-                fps3Supported,
-            },
-        },
+        EMESupport,
     };
 }
 
@@ -159,88 +148,40 @@ frodo().then((data) => {
             isPlayreadySupported,
             isClearKeySupported,
             isFairPlaySupported,
-            fairPlayVersions: {
-                fpsSupported,
-                fps1Supported,
-                fps2Supported,
-                fps3Supported,
-            },
+            fpsSupported,
+            fps1Supported,
+            fps2Supported,
+            fps3Supported,
         },
     } = data;
 
+    function supportIndicator(value, id) {
+        document.getElementById(id).innerText = value;
+        value
+            ? (document.getElementById(id).className = 'enable')
+            : (document.getElementById(id).className = 'disable');
+    }
+
     // drm
 
-    document.getElementById('widevine').innerText = isWidevineSupported;
-    isWEBMSupported
-        ? (document.getElementById('widevine').className = 'enable')
-        : (document.getElementById('widevine').className = 'disable');
-
-    document.getElementById('fairplay').innerText = isFairPlaySupported;
-    isFairPlaySupported
-        ? (document.getElementById('fairplay').className = 'enable')
-        : (document.getElementById('fairplay').className = 'disable');
-
-    document.getElementById('clearkey').innerText = isClearKeySupported;
-    isClearKeySupported
-        ? (document.getElementById('clearkey').className = 'enable')
-        : (document.getElementById('clearkey').className = 'disable');
-
-    document.getElementById('playerready').innerText = isPlayreadySupported;
-    isPlayreadySupported
-        ? (document.getElementById('playerready').className = 'enable')
-        : (document.getElementById('playerready').className = 'disable');
+    supportIndicator(isWidevineSupported, 'widevine');
+    supportIndicator(isFairPlaySupported, 'fairplay');
+    supportIndicator(isClearKeySupported, 'clearkey');
+    supportIndicator(isPlayreadySupported, 'playerready');
 
     // streaming
 
-    document.getElementById('hls').innerText = isHLSSupported;
-    isHLSSupported
-        ? (document.getElementById('hls').className = 'enable')
-        : (document.getElementById('hls').className = 'disable');
-
-    document.getElementById('dash').innerText = isDashSupported;
-    isDashSupported
-        ? (document.getElementById('dash').className = 'enable')
-        : (document.getElementById('dash').className = 'disable');
-
-    document.getElementById('media').innerText = isMediaSourceSupported;
-    isMediaSourceSupported
-        ? (document.getElementById('media').className = 'enable')
-        : (document.getElementById('media').className = 'disable');
+    supportIndicator(isHLSSupported, 'hls');
+    supportIndicator(isDashSupported, 'dash');
+    supportIndicator(isMediaSourceSupported, 'media');
 
     // codecs
 
-    document.getElementById('mpeg4').innerText = isMPEG4Supported;
-    isMPEG4Supported
-        ? (document.getElementById('mpeg4').className = 'enable')
-        : (document.getElementById('mpeg4').className = 'disable');
-
-    document.getElementById('h264').innerText = isH264Supported;
-    isH264Supported
-        ? (document.getElementById('h264').className = 'enable')
-        : (document.getElementById('h264').className = 'disable');
-
-    document.getElementById('h265').innerText = isH265Supported;
-    isH265Supported
-        ? (document.getElementById('h265').className = 'enable')
-        : (document.getElementById('h265').className = 'disable');
-
-    document.getElementById('ogg').innerText = isOGGSupported;
-    isOGGSupported
-        ? (document.getElementById('ogg').className = 'enable')
-        : (document.getElementById('ogg').className = 'disable');
-
-    document.getElementById('webm').innerText = isWEBMSupported;
-    isWEBMSupported
-        ? (document.getElementById('webm').className = 'enable')
-        : (document.getElementById('webm').className = 'disable');
-
-    document.getElementById('vp8').innerText = isVP8Supported;
-    isVP8Supported
-        ? (document.getElementById('vp8').className = 'enable')
-        : (document.getElementById('vp8').className = 'disable');
-
-    document.getElementById('vp9').innerText = isVP9Supported;
-    isVP9Supported
-        ? (document.getElementById('vp9').className = 'enable')
-        : (document.getElementById('vp9').className = 'disable');
+    supportIndicator(isMPEG4Supported, 'mpeg4');
+    supportIndicator(isH264Supported, 'h264');
+    supportIndicator(isH265Supported, 'h265');
+    supportIndicator(isOGGSupported, 'ogg');
+    supportIndicator(isWEBMSupported, 'webm');
+    supportIndicator(isVP8Supported, 'vp8');
+    supportIndicator(isVP9Supported, 'vp9');
 });
