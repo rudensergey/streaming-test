@@ -8,9 +8,8 @@ async function frodo() {
     let isH264Supported;
     let isH265Supported;
     let isHLSSupported;
-    let isMediaSourceSupported;
 
-    // video codecs support
+    // video codecs & streaming
 
     if (testVideoElement.canPlayType) {
         isOGGSupported =
@@ -45,18 +44,9 @@ async function frodo() {
         isHLSSupported =
             testVideoElement.canPlayType('application/vnd.apple.mpegURL') ||
             false;
-
-        isMediaSourceSupported =
-            'MediaSource' in window
-                ? true
-                : 'WebKitMediaSource' in window ||
-                  'mozMediaSource' in window ||
-                  'msMediaSource' in window
-                ? true
-                : false;
     }
 
-    /* streaming */
+    // DRM systems
 
     const config = [
         {
@@ -116,19 +106,27 @@ async function frodo() {
             () => true,
             () => false
         );
+
     const isFairPlaySupported =
         fpsSupported || fps1Supported || fps2Supported || fps3Supported;
+    const isMediaSourceSupported =
+        'MediaSource' in window ||
+        'WebKitMediaSource' in window ||
+        'mozMediaSource' in window ||
+        'msMediaSource' in window;
+    const isDashSupported = isMediaSourceSupported;
 
     return {
-        isH265Supported,
-        isOGGSupported,
-        isMPEG4Supported,
-        isH264Supported,
-        isWEBMSupported,
-        isVP8Supported,
-        isVP9Supported,
-        isHLSSupported,
-        isMediaSourceSupported,
+        codecs: {
+            isH265Supported,
+            isOGGSupported,
+            isMPEG4Supported,
+            isH264Supported,
+            isWEBMSupported,
+            isVP8Supported,
+            isVP9Supported,
+        },
+        streaming: { isHLSSupported, isDashSupported, isMediaSourceSupported },
         EMESupport: {
             isWidevineSupported,
             isPlayreadySupported,
@@ -146,20 +144,27 @@ async function frodo() {
 
 frodo().then((data) => {
     const {
-        isMPEG4Supported,
-        isH264Supported,
-        isH265Supported,
-        isHLSSupported,
-        isOGGSupported,
-        isWEBMSupported,
-        isVP8Supported,
-        isVP9Supported,
-        isMediaSourceSupported,
+        codecs: {
+            isH265Supported,
+            isOGGSupported,
+            isMPEG4Supported,
+            isH264Supported,
+            isWEBMSupported,
+            isVP8Supported,
+            isVP9Supported,
+        },
+        streaming: { isHLSSupported, isDashSupported, isMediaSourceSupported },
         EMESupport: {
             isWidevineSupported,
+            isPlayreadySupported,
             isClearKeySupported,
             isFairPlaySupported,
-            isPlayreadySupported,
+            fairPlayVersions: {
+                fpsSupported,
+                fps1Supported,
+                fps2Supported,
+                fps3Supported,
+            },
         },
     } = data;
 
@@ -191,6 +196,11 @@ frodo().then((data) => {
     isHLSSupported
         ? (document.getElementById('hls').className = 'enable')
         : (document.getElementById('hls').className = 'disable');
+
+    document.getElementById('dash').innerText = isDashSupported;
+    isDashSupported
+        ? (document.getElementById('dash').className = 'enable')
+        : (document.getElementById('dash').className = 'disable');
 
     document.getElementById('media').innerText = isMediaSourceSupported;
     isMediaSourceSupported
