@@ -1,6 +1,13 @@
 async function frodo() {
-    const testVideoElement = document.createElement('video');
+    const WIDEVINE = 'com.widevine.alpha';
+    const PLAYERREADY = 'com.microsoft.playready';
+    const CLEARKEY = 'org.w3.clearkey';
+    const FAIRPLAY = 'com.apple.fps';
+    const FPS1 = 'com.apple.fps.1_0';
+    const FPS2 = 'com.apple.fps.2_0';
+    const FPS3 = 'com.apple.fps.3_0';
 
+    const testVideoElement = document.createElement('video');
     let isOGGSupported;
     let isWEBMSupported;
     let isMPEG4Supported;
@@ -71,50 +78,15 @@ async function frodo() {
         },
     ];
 
-    const DRMSystems = {
-        isWidevineSupported: 'com.widevine.alpha',
-        isPlayreadySupported: 'com.microsoft.playready',
-        isClearKeySupported: 'org.w3.clearkey',
-        isFairPlaySupported: 'com.apple.fps',
-        fps1Supported: 'com.apple.fps.1_0',
-        fps2Supported: 'com.apple.fps.2_0',
-        fps3Supported: 'com.apple.fps.3_0',
-    };
-
-    function checkDRMSupport(systems, mediaConfig) {
-        const promises = [];
-        const supportList = {};
-
-        async function checking(key, value) {
-            await navigator
-                .requestMediaKeySystemAccess(value, mediaConfig)
-                .then(
-                    () => {
-                        supportList[key] = true;
-                    },
-                    () => {
-                        supportList[key] = false;
-                    }
-                );
+    async function supportChecker(name) {
+        try {
+            return Boolean(
+                await navigator.requestMediaKeySystemAccess(name, config)
+            );
+        } catch (err) {
+            return false;
         }
-
-        for (const key in systems) {
-            if ({}.hasOwnProperty.call(systems, key)) {
-                promises.push(checking(key, systems[key]));
-            }
-        }
-
-        return Promise.all(promises).then(() => {
-            supportList.isFairPlaySupported =
-                supportList.fpsSupported ||
-                supportList.fps1Supported ||
-                supportList.fps2Supported ||
-                supportList.fps3Supported;
-            return supportList;
-        });
     }
-
-    const EMESupport = await checkDRMSupport(DRMSystems, config);
 
     return {
         codecs: {
@@ -127,61 +99,51 @@ async function frodo() {
             isVP9Supported,
         },
         streaming: { isHLSSupported, isDashSupported, isMediaSourceSupported },
-        EMESupport,
+        drm: {
+            isWidevineSupported: () => supportChecker(WIDEVINE),
+            isPlayerReadySupported: () => supportChecker(PLAYERREADY),
+            isClearkeySupported: () => supportChecker(CLEARKEY),
+            isFairPlaySupported: () =>
+                supportChecker(FAIRPLAY) ||
+                supportChecker(FPS1) ||
+                supportChecker(FPS2) ||
+                supportChecker(FPS3),
+        },
     };
 }
 
 frodo().then((data) => {
-    const {
-        codecs: {
-            isH265Supported,
-            isOGGSupported,
-            isMPEG4Supported,
-            isH264Supported,
-            isWEBMSupported,
-            isVP8Supported,
-            isVP9Supported,
-        },
-        streaming: { isHLSSupported, isDashSupported, isMediaSourceSupported },
-        EMESupport: {
-            isWidevineSupported,
-            isPlayreadySupported,
-            isClearKeySupported,
-            isFairPlaySupported,
-            fpsSupported,
-            fps1Supported,
-            fps2Supported,
-            fps3Supported,
-        },
-    } = data;
+    const codecsId = document.getElementById('codecs');
+    const streamingId = document.getElementById('streaming');
+    const emeId = document.getElementById('eme');
 
-    function supportIndicator(value, id) {
-        document.getElementById(id).innerText = value;
-        value
-            ? (document.getElementById(id).className = 'enable')
-            : (document.getElementById(id).className = 'disable');
+    async function createChildren(obj, attachedTo) {
+        for (const key in obj) {
+            const indicator = document.createElement('p');
+            let value;
+
+            if (typeof obj[key] === 'function') {
+                value = await obj[key]();
+            } else {
+                value = obj[key];
+            }
+
+            indicator.innerHTML = `${key
+                .slice(2)
+                .slice(0, key.indexOf('Supported') - 2)}: <span class=${
+                value ? 'enable' : 'disable'
+            } id="${key}">${value}</span>`;
+            attachedTo.append(indicator);
+        }
     }
 
-    // drm
-
-    supportIndicator(isWidevineSupported, 'widevine');
-    supportIndicator(isFairPlaySupported, 'fairplay');
-    supportIndicator(isClearKeySupported, 'clearkey');
-    supportIndicator(isPlayreadySupported, 'playerready');
-
-    // streaming
-
-    supportIndicator(isHLSSupported, 'hls');
-    supportIndicator(isDashSupported, 'dash');
-    supportIndicator(isMediaSourceSupported, 'media');
-
-    // codecs
-
-    supportIndicator(isMPEG4Supported, 'mpeg4');
-    supportIndicator(isH264Supported, 'h264');
-    supportIndicator(isH265Supported, 'h265');
-    supportIndicator(isOGGSupported, 'ogg');
-    supportIndicator(isWEBMSupported, 'webm');
-    supportIndicator(isVP8Supported, 'vp8');
-    supportIndicator(isVP9Supported, 'vp9');
+    try {
+        Promise.all(
+            createChildren(data.codecs, codecsId),
+            createChildren(data.streaming, streamingId),
+            createChildren(data.drm, emeId)
+        ).then();
+    } catch (e) {
+        console.log(`Rejected promise:  +${e}`);
+    }
 });
