@@ -142,8 +142,8 @@ frodo().then((data) => {
             createChildren(data.codecs, codecsId),
             createChildren(data.streaming, streamingId),
             createChildren(data.drm, emeId),
-        ]).catch((err) => console.log(err));
+        ]);
     } catch (e) {
-        console.log(`Rejected promise:  +${e}`);
+        console.log(`Cant identify DRM System: ${e}`);
     }
 });
