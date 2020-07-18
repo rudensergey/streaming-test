@@ -5,7 +5,7 @@ const is_prod = process.env.NODE_ENV;
 
 module.exports = {
     mode: is_prod === 'production',
-    entry: './src/frodo.js',
+    entry: './src/index.ts',
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: '[hash].js',
@@ -21,6 +21,14 @@ module.exports = {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader'],
             },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
         ],
+    },
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js'],
     },
 };
