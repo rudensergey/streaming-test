@@ -1,3 +1,5 @@
+import './style.css';
+
 async function frodo() {
     const WIDEVINE = 'com.widevine.alpha';
     const PLAYERREADY = 'com.microsoft.playready';
