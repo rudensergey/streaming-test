@@ -1,70 +1,49 @@
 import './style.css';
+import {
+    DRM,
+    CODECS,
+    MEDIA_SOURSES,
+    drmType,
+    SupportTypes,
+    Config,
+} from './types';
 
 async function frodo() {
-    const WIDEVINE = 'com.widevine.alpha';
-    const PLAYERREADY = 'com.microsoft.playready';
-    const CLEARKEY = 'org.w3.clearkey';
-    const FAIRPLAY = 'com.apple.fps';
-    const FPS1 = 'com.apple.fps.1_0';
-    const FPS2 = 'com.apple.fps.2_0';
-    const FPS3 = 'com.apple.fps.3_0';
-
-    const testVideoElement = document.createElement('video');
-    let isOGGSupported;
-    let isWEBMSupported;
-    let isMPEG4Supported;
-    let isVP8Supported;
-    let isVP9Supported;
-    let isH264Supported;
-    let isH265Supported;
-    let isHLSSupported;
+    const testVideoElement: HTMLVideoElement = document.createElement('video');
+    let isOGGSupported: SupportTypes;
+    let isWEBMSupported: SupportTypes;
+    let isMPEG4Supported: SupportTypes;
+    let isVP8Supported: SupportTypes;
+    let isVP9Supported: SupportTypes;
+    let isH264Supported: SupportTypes;
+    let isH265Supported: SupportTypes;
+    let isHLSSupported: SupportTypes;
     const isMediaSourceSupported =
-        'MediaSource' in window ||
-        'WebKitMediaSource' in window ||
-        'mozMediaSource' in window ||
-        'msMediaSource' in window;
+        MEDIA_SOURSES.MEDIA in window ||
+        MEDIA_SOURSES.WEBKIT in window ||
+        MEDIA_SOURSES.MOZILA in window ||
+        MEDIA_SOURSES.MICROSOFT in window;
     const isDashSupported = isMediaSourceSupported;
 
     // video codecs & streaming
 
     if (testVideoElement.canPlayType) {
-        isOGGSupported =
-            testVideoElement.canPlayType('video/ogg;codecs="theora"') || false;
-
-        isWEBMSupported =
-            testVideoElement.canPlayType('video/webm; codecs="vp8, vorbis"') ||
-            false;
-
-        isMPEG4Supported =
-            testVideoElement.canPlayType('video/mp4; codecs="mp4v.20.8"') ||
-            false;
-
-        isVP8Supported =
-            testVideoElement.canPlayType('video/webm; codecs="vp8"') || false;
-
-        isVP9Supported =
-            testVideoElement.canPlayType('video/webm; codecs="vp9"') || false;
-
+        isOGGSupported = testVideoElement.canPlayType(CODECS.OGG) || false;
+        isWEBMSupported = testVideoElement.canPlayType(CODECS.WEBM) || false;
+        isMPEG4Supported = testVideoElement.canPlayType(CODECS.MPEG4) || false;
+        isVP8Supported = testVideoElement.canPlayType(CODECS.VP8) || false;
+        isVP9Supported = testVideoElement.canPlayType(CODECS.VP9) || false;
+        isH265Supported = testVideoElement.canPlayType(CODECS.H265) || false;
+        isHLSSupported = testVideoElement.canPlayType(CODECS.HLS) || false;
         isH264Supported =
-            testVideoElement.canPlayType('video/mp4; codecs="avc1.42E01E"') ||
-            testVideoElement.canPlayType(
-                'video/mp4; codecs="avc1.42E01E, mp4a.40.2"'
-            ) ||
-            false;
-
-        isH265Supported =
-            testVideoElement.canPlayType('video/mp4; codecs="hvc1.1.L0.0"') ||
-            testVideoElement.canPlayType('video/mp4; codecs="hev1.1.L0.0"') ||
-            false;
-
-        isHLSSupported =
-            testVideoElement.canPlayType('application/vnd.apple.mpegURL') ||
+            testVideoElement.canPlayType(CODECS.H264_1) ||
+            testVideoElement.canPlayType(CODECS.H265_2) ||
             false;
     }
 
     // DRM systems
 
-    const config = [
+    const config: Config = [
         {
             initDataTypes: ['cenc'],
             audioCapabilities: [
@@ -80,7 +59,7 @@ async function frodo() {
         },
     ];
 
-    async function supportChecker(name) {
+    async function supportChecker(name: drmType) {
         try {
             return Boolean(
                 await navigator.requestMediaKeySystemAccess(name, config)
@@ -102,14 +81,14 @@ async function frodo() {
         },
         streaming: { isHLSSupported, isDashSupported, isMediaSourceSupported },
         drm: {
-            isWidevineSupported: () => supportChecker(WIDEVINE),
-            isPlayerReadySupported: () => supportChecker(PLAYERREADY),
-            isClearkeySupported: () => supportChecker(CLEARKEY),
+            isWidevineSupported: () => supportChecker(DRM.WIDEVINE),
+            isPlayerReadySupported: () => supportChecker(DRM.PLAYREADY),
+            isClearkeySupported: () => supportChecker(DRM.CLEARKEY),
             isFairPlaySupported: () =>
-                supportChecker(FAIRPLAY) ||
-                supportChecker(FPS1) ||
-                supportChecker(FPS2) ||
-                supportChecker(FPS3),
+                supportChecker(DRM.FAIRPLAY) ||
+                supportChecker(DRM.FPS1) ||
+                supportChecker(DRM.FPS2) ||
+                supportChecker(DRM.FPS3),
         },
     };
 }
