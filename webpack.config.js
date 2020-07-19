@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWbpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const is_prod = process.env.NODE_ENV;
 
@@ -13,7 +14,8 @@ module.exports = {
     plugins: [
         new HtmlWbpackPlugin({
             template: './src/index.html',
-        }),
+		}),
+		new CleanWebpackPlugin()
     ],
     module: {
         rules: [
