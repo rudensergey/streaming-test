@@ -21,21 +21,48 @@ li,
 ul {
     margin: 20px;
     color: #c9c9c9;
-    font-family: "Montserrat", sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 h1 {
-	font-weight: 100;
+    font-weight: 100;
 }
 
 p {
-	font-weight: 800;
+    font-weight: 800;
 }
 
 .enable {
-	color: rgb(25, 240, 229);
+    color: rgb(25, 240, 229);
 }
 
 .disable {
-	color: rgb(184, 44, 44);
+    color: rgb(184, 44, 44);
+}
+
+.title {
+	margin: 20px;
+	border: 4px solid #c9c9c9;
+}
+
+.appearance {
+	opacity: 0;
+    animation-name: appearance;
+    animation-duration: 0.5s;
+    animation-delay: 0.2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes appearance {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
 }
