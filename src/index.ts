@@ -5,7 +5,8 @@ import {
     MEDIA_SOURSES,
     drmType,
     SupportTypes,
-    Config,
+	Config,
+	ICompatibilityData
 } from './types';
 
 async function frodo() {
@@ -18,12 +19,12 @@ async function frodo() {
     let isH264Supported: SupportTypes;
     let isH265Supported: SupportTypes;
     let isHLSSupported: SupportTypes;
-    const isMediaSourceSupported =
+    const isMediaSourceSupported: Boolean =
         MEDIA_SOURSES.MEDIA in window ||
         MEDIA_SOURSES.WEBKIT in window ||
         MEDIA_SOURSES.MOZILA in window ||
         MEDIA_SOURSES.MICROSOFT in window;
-    const isDashSupported = isMediaSourceSupported;
+    const isDashSupported: Boolean = isMediaSourceSupported;
 
     // video codecs & streaming
 
@@ -93,15 +94,22 @@ async function frodo() {
     };
 }
 
-frodo().then((data) => {
-    const codecsId = document.getElementById('codecs');
-    const streamingId = document.getElementById('streaming');
-    const emeId = document.getElementById('eme');
+type SupportObjectType = {
+    [key: string]: SupportTypes | Function;
+};
 
-    async function createChildren(obj, attachedTo) {
+frodo().then((data: ICompatibilityData) => {
+    const codecsId: HTMLElement = document.getElementById('codecs');
+    const streamingId: HTMLElement = document.getElementById('streaming');
+    const emeId: HTMLElement = document.getElementById('eme');
+
+    async function createChildren(
+        obj: SupportObjectType,
+        attachedTo: HTMLElement
+    ) {
         for (const key in obj) {
-            const indicator = document.createElement('p');
-            let value;
+            const indicator: HTMLElement = document.createElement('p');
+            let value: SupportTypes | Function;
 
             if (typeof obj[key] === 'function') {
                 value = await obj[key]();

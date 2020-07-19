@@ -36,10 +36,36 @@ export type drmType =
     | DRM.FPS2
     | DRM.FPS3;
 
-export type SupportTypes = false | 'maybe' | 'probably';
+export type SupportTypes = Boolean | 'maybe' | 'probably';
 
 export type Config = Array<{
     initDataTypes: Array<string>;
     audioCapabilities: Array<{}>;
     videoCapabilities: Array<{}>;
 }>;
+
+export type CompatibilityTypes = Function | Boolean | 'maybe' | 'probably';
+export interface ICompatibilityData {
+    codecs: {
+        isH265Supported: CompatibilityTypes;
+        isOGGSupported: CompatibilityTypes;
+        isMPEG4Supported: CompatibilityTypes;
+        isH264Supported: CompatibilityTypes;
+        isWEBMSupported: CompatibilityTypes;
+        isVP8Supported: CompatibilityTypes;
+        isVP9Supported: CompatibilityTypes;
+    };
+
+    streaming: {
+        isHLSSupported: CompatibilityTypes;
+        isDashSupported: Boolean;
+        isMediaSourceSupported: Boolean;
+    };
+
+    drm: {
+        isWidevineSupported: Function;
+        isPlayerReadySupported: Function;
+        isClearkeySupported: Function;
+        isFairPlaySupported: Function;
+    };
+}
