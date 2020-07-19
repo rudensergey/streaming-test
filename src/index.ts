@@ -5,8 +5,8 @@ import {
     MEDIA_SOURSES,
     drmType,
     SupportTypes,
-	Config,
-	ICompatibilityData
+    Config,
+    ICompatibilityData,
 } from './types';
 
 async function frodo() {
@@ -112,6 +112,7 @@ frodo().then((data: ICompatibilityData) => {
             let value: SupportTypes | Function;
 
             if (typeof obj[key] === 'function') {
+                // @ts-ignore
                 value = await obj[key]();
             } else {
                 value = obj[key];
