@@ -14,9 +14,12 @@ module.exports = {
     plugins: [
         new HtmlWbpackPlugin({
             template: './src/index.html',
-		}),
-		new CleanWebpackPlugin()
+        }),
+        new CleanWebpackPlugin(),
     ],
+    devServer: {
+        port: 3000,
+    },
     module: {
         rules: [
             {
